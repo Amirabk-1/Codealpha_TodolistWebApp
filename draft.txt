@@ -1,0 +1,44 @@
+<?php
+include 'connect.php';
+
+// Check if the task name data has been sent from the JavaScript code
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["taskName"])) {
+    // Get the task name from the POST data
+    $taskName = $_POST["taskName"];
+
+
+    // Example: Trim any leading or trailing whitespace
+    $taskName = trim($taskName);
+
+    // Example: Validate if the task name is not empty
+    if (empty($taskName)) {
+        // Handle empty task name
+        echo "Task name cannot be empty.";
+    } else {
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        // Prepare and execute SQL statement to insert task name into the database
+        $taskStatus = intval(0);
+        $sql = "INSERT INTO tasklist (task_name, task_status) VALUES ('$taskName', '$taskStatus')";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("si", $taskName, $taskStatus);
+        if ($stmt->execute()) {
+            echo "Task added successfully.";
+        } else {
+            echo "Error: " . $sql . "<br>" . $conn->error;
+        }
+
+        // Close statement and database connection
+        $stmt->close();
+        $conn->close();
+    }
+} else {
+    echo "No task name data received.";
+}
+
+
+
+?>
